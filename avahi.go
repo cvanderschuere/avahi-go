@@ -11,9 +11,9 @@ import(
 )
 
 const(
-	AVAHI_SERVICE int = iota
-	AVAHI_DELETE_SERVICE
-	AVAHI_ADD_SERVICE
+	AVAHI_SERVICE_RESOLVE 	= "="
+	AVAHI_SERVICE_DELETE 	= "+"
+	AVAHI_SERVICE_ADD 		= "-"
 )
 
 type Service struct{
@@ -107,15 +107,15 @@ func BrowseServiceImmediate(serviceType string)(map[string]Service){
 				
 		//Determine type of update
 		switch comps[0]{
-		case "-":
+		case AVAHI_SERVICE_DELETE:
 			continue //Alse skip deletions for now
-		case "=": //Resolved Services
+		case AVAHI_SERVICE_RESOLVE: //Resolved Services
 			//Add service to array for this item
 			newService := parseResolvedService(line,rd)
 
 			services[newService.Name] = newService
 			
-		case "+":
+		case AVAHI_SERVICE_ADD:
 			continue //Skip over additions...wait until detailed information
 		}	
 	}	
@@ -194,7 +194,7 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 	 
 				//Determine type of update
 				switch comps[0]{
-				case "-":
+				case AVAHI_SERVICE_DELETE:
 					//Delete service
 					splitLine := strings.SplitN(line,"               ",2)
 					splitComps := strings.Fields(splitLine[0])
@@ -204,7 +204,7 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 					
 					updateChan <- services //Send updated services
 										
-				case "=": //Resolved Services
+				case AVAHI_SERVICE_RESOLVE: //Resolved Services
 					//Add service to array for this item
 					newService := parseResolvedService(line,rd)
 		
@@ -212,7 +212,7 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 					
 					updateChan <- services //Send update
 		
-				case "+":
+				case AVAHI_SERVICE_ADD:
 					//Skip over additions...wait until resolved information
 				}
 			}
