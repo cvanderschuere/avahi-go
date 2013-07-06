@@ -34,9 +34,15 @@ type serviceUpdate struct{
 //Publish
 //
 
-func PublishService(name,serviceType string, port int)(chan<- interface{}, error){
+func PublishService(name,serviceType string, port int, txt ...string)(chan<- interface{}, error){
 	//Exec avahi-publish with given paramaters
-	cmd := exec.Command("avahi-publish-service",name,serviceType,strconv.Itoa(port))
+	args := make([]string,3)
+	args[0] = name
+	args[1] = serviceType
+	args[2] = strconv.Itoa(port)
+	args = append(args,txt...)//append on any txt data
+	
+	cmd := exec.Command("avahi-publish-service",args...)
 	killChan := make(chan interface{})
 	
 	//Start Command
@@ -135,8 +141,13 @@ func BrowseServiceImmediate(serviceType string)(map[string]Service){
 			trimmed = strings.Trim(comps[2],"[]")
 			newService.Port, _ = strconv.Atoi(trimmed)
 			
-			newService.TXT = "" //Ignore this field
+			//TXT:
+			line, _ = rd.ReadString('\n')
+			trimmed = strings.TrimLeft(line,"txt= [")
+			trimmed = strings.TrimRight(trimmed,"\n] ")
 			
+			newService.TXT = trimmed
+
 			services[newService.Name] = newService
 			
 		case "+":
@@ -260,7 +271,12 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 					trimmed = strings.Trim(comps[2],"[]")
 					newService.Port, _ = strconv.Atoi(trimmed)
 		
-					newService.TXT = "" //Ignore this field
+					//TXT:
+					line, _ = rd.ReadString('\n')
+					trimmed = strings.TrimLeft(line,"txt= [")
+					trimmed = strings.TrimRight(trimmed,"\n] ")
+			
+					newService.TXT = trimmed
 		
 					services[newService.Name] = newService
 					

@@ -8,7 +8,7 @@ import "log"
 
 
 func TestPublish(t *testing.T){
-	quitChan,err := PublishService("Test","_example._tcp",8080);
+	quitChan,err := PublishService("Test","_example._tcp",8080,"TEST","Another Test");
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -24,6 +24,7 @@ func TestBrowseImmediate(t *testing.T){
 		fmt.Println("Host: "+service.Hostname)
 		fmt.Println("Address: "+service.Address)
 		fmt.Println("Port:", service.Port)
+		fmt.Println("TXT:", service.TXT)
 		fmt.Println("/////////////////////////") //Barrier
 	}
 }
