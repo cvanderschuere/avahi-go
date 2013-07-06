@@ -1,3 +1,6 @@
+/*
+	A simple wrapper to avahi-publish and avahi-browse
+*/
 package avahi
 //Author: Chris Vanderschuere
 
