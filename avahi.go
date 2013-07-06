@@ -111,42 +111,7 @@ func BrowseServiceImmediate(serviceType string)(map[string]Service){
 			continue //Alse skip deletions for now
 		case "=": //Resolved Services
 			//Add service to array for this item
-			var newService Service
-			//Split name line
-			splitLine := strings.SplitN(line,"               ",2)
-			splitComps := strings.Fields(splitLine[0])
-			splitComps = splitComps[3:]
-			name := strings.Join(splitComps," ")
-			
-			newService.Name = name
-				
-			//Hostname: Skip to next line
-			line, _ = rd.ReadString('\n')
-			comps = strings.Fields(line)
-			
-			trimmed := strings.Trim(comps[2],"[]")
-			newService.Hostname = trimmed
-			
-			//Address: Skip to next line
-			line, _ = rd.ReadString('\n')
-			comps = strings.Fields(line)
-			
-			trimmed = strings.Trim(comps[2],"[]")
-			newService.Address = trimmed
-				
-			//Port: Skip to next line
-			line, _ = rd.ReadString('\n')
-			comps = strings.Fields(line)
-	
-			trimmed = strings.Trim(comps[2],"[]")
-			newService.Port, _ = strconv.Atoi(trimmed)
-			
-			//TXT:
-			line, _ = rd.ReadString('\n')
-			trimmed = strings.TrimLeft(line,"txt= [")
-			trimmed = strings.TrimRight(trimmed,"\n] ")
-			
-			newService.TXT = trimmed
+			newService := parseResolvedService(line,rd)
 
 			services[newService.Name] = newService
 			
@@ -241,42 +206,7 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 										
 				case "=": //Resolved Services
 					//Add service to array for this item
-					var newService Service
-					//Split name line
-					splitLine := strings.SplitN(line,"               ",2)
-					splitComps := strings.Fields(splitLine[0])
-					splitComps = splitComps[3:]
-					name := strings.Join(splitComps," ")
-		
-					newService.Name = name
-			
-					//Hostname: Skip to next line
-					line, _ = rd.ReadString('\n')
-					comps = strings.Fields(line)
-		
-					trimmed := strings.Trim(comps[2],"[]")
-					newService.Hostname = trimmed
-		
-					//Address: Skip to next line
-					line, _ = rd.ReadString('\n')
-					comps = strings.Fields(line)
-		
-					trimmed = strings.Trim(comps[2],"[]")
-					newService.Address = trimmed
-			
-					//Port: Skip to next line
-					line, _ = rd.ReadString('\n')
-					comps = strings.Fields(line)
-
-					trimmed = strings.Trim(comps[2],"[]")
-					newService.Port, _ = strconv.Atoi(trimmed)
-		
-					//TXT:
-					line, _ = rd.ReadString('\n')
-					trimmed = strings.TrimLeft(line,"txt= [")
-					trimmed = strings.TrimRight(trimmed,"\n] ")
-			
-					newService.TXT = trimmed
+					newService := parseResolvedService(line,rd)
 		
 					services[newService.Name] = newService
 					
@@ -291,4 +221,45 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 	
 	
 	return updateChan
+}
+
+//Takes in the first line of a read where '=' is the first character...reads and returns Service
+func parseResolvedService(line string, rd *bufio.Reader)(Service){
+	var newService Service
+	//Split name line
+	splitLine := strings.SplitN(line,"               ",2)
+	splitComps := strings.Fields(splitLine[0])
+	splitComps = splitComps[3:]
+	name := strings.Join(splitComps," ")
+	
+	newService.Name = name
+		
+	//Hostname: Skip to next line
+	line, _ = rd.ReadString('\n')
+	comps := strings.Fields(line)
+	
+	trimmed := strings.Trim(comps[2],"[]")
+	newService.Hostname = trimmed
+	
+	//Address: Skip to next line
+	line, _ = rd.ReadString('\n')
+	comps = strings.Fields(line)
+	
+	trimmed = strings.Trim(comps[2],"[]")
+	newService.Address = trimmed
+		
+	//Port: Skip to next line
+	line, _ = rd.ReadString('\n')
+	comps = strings.Fields(line)
+
+	trimmed = strings.Trim(comps[2],"[]")
+	newService.Port, _ = strconv.Atoi(trimmed)
+	
+	//TXT:
+	line, _ = rd.ReadString('\n')
+	trimmed = strings.TrimLeft(line,"txt= [")
+	trimmed = strings.TrimRight(trimmed,"\n] ")
+	
+	newService.TXT = trimmed
+	return newService
 }
