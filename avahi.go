@@ -33,13 +33,17 @@ type serviceUpdate struct{
 //Publish
 //
 
-func PublishService(name,serviceType string, port int)(chan<- bool, error){
+func PublishService(name,serviceType string, port int)(chan<- interface{}, error){
 	//Exec avahi-publish with given paramaters
-	cmd := exec.Command("avahi-publish","-s",name,serviceType,string(port))
-	killChan := make(chan bool)
+	cmd := exec.Command("avahi-publish-service",name,serviceType,strconv.Itoa(port))
+	killChan := make(chan interface{})
 	
 	//Start Command
 	err := cmd.Start()
+	
+	if err != nil{
+		log.Fatal(err)
+	}
 	
 	//Kill process if command given
 	go func(){

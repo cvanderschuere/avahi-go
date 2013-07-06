@@ -3,6 +3,18 @@ package avahi
 import "testing"
 import "fmt"
 import "time"
+import "log"
+
+
+func TestPublish(t *testing.T){
+	quitChan,err := PublishService("Test","_musicbox._tcp",8080);
+	if err != nil{
+		log.Fatal(err)
+	}
+	
+	<-time.After(3*time.Second)
+	quitChan<-true //Kill process
+} 
 
 func TestBrowseImmediate(t *testing.T){
 	results := BrowseServiceImmediate("_musicbox._tcp")
@@ -20,13 +32,13 @@ func TestBrowse(t *testing.T){
 	
 	resultChan := BrowseService("_musicbox._tcp",quitChan)
 	
-	//Kill in 10 seconds
-	
+	//Kill in 5 seconds
 	go func(){
 		<-time.After(5*time.Second)
-		fmt.Println("Quit")
+		quitChan<-true
 	}()
 	
+	//Loop through all updates
 	for result := range resultChan{
 		fmt.Println("/////////////////////////") //Barrier
 		//Iterate over response
