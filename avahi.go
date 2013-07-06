@@ -1,4 +1,5 @@
 package avahi
+//Author: Chris Vanderschuere
 
 import(
 	"os/exec"

@@ -1,4 +1,5 @@
 package avahi
+//Author: Chris Vanderschuere
 
 import "testing"
 import "fmt"
@@ -7,7 +8,7 @@ import "log"
 
 
 func TestPublish(t *testing.T){
-	quitChan,err := PublishService("Test","_musicbox._tcp",8080);
+	quitChan,err := PublishService("Test","_example._tcp",8080);
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -17,7 +18,7 @@ func TestPublish(t *testing.T){
 } 
 
 func TestBrowseImmediate(t *testing.T){
-	results := BrowseServiceImmediate("_musicbox._tcp")
+	results := BrowseServiceImmediate("_example._tcp")
 	for _,service := range results{	
 		fmt.Println("Name: "+service.Name)
 		fmt.Println("Host: "+service.Hostname)
@@ -30,7 +31,7 @@ func TestBrowseImmediate(t *testing.T){
 func TestBrowse(t *testing.T){
 	quitChan := make(chan interface{})
 	
-	resultChan := BrowseService("_musicbox._tcp",quitChan)
+	resultChan := BrowseService("_example._tcp",quitChan)
 	
 	//Kill in 5 seconds
 	go func(){
