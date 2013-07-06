@@ -7,7 +7,6 @@ import(
 	"bufio"
 	"io"
 	"log"
-	"fmt"
 )
 
 const(
@@ -153,11 +152,9 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 	
 	//Asyncronously monitor for services
 	go func(){
-		fmt.Println("Started Immediate Search")
 		//Send initial snapshot
 		services := BrowseServiceImmediate(serviceType)
 		updateChan <- services
-		fmt.Println("Sent initial results")
 		
 		//Launch constant monitoring
 		cmd := exec.Command("avahi-browse","-r",serviceType)
@@ -171,7 +168,6 @@ func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[s
 		//Buffered Reader
 		rd := bufio.NewReader(stdout)
 		
-		fmt.Println("started constant browse")
 		if err := cmd.Start(); err != nil {
 			log.Fatal(err)
 		}
