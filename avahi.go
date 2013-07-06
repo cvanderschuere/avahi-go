@@ -25,15 +25,11 @@ type Service struct{
 	TXT			string
 }
 
-type serviceUpdate struct{
-	updateType int
-	service Service
-}
-
 //
 //Publish
 //
 
+//Publishes a service with the given paramaters
 func PublishService(name,serviceType string, port int, txt ...string)(chan<- interface{}, error){
 	//Exec avahi-publish with given paramaters
 	args := make([]string,3)
@@ -66,16 +62,7 @@ func PublishService(name,serviceType string, port int, txt ...string)(chan<- int
 //Browse
 //
 
-//Example Text
-/*
-+   eth0 IPv4 BeagleBoneMusicBox                            _musicbox._tcp       local
-=   eth0 IPv4 BeagleBoneMusicBox                            _musicbox._tcp       local
-   hostname = [beaglebone.local]
-   address = [192.168.0.199]
-   port = [8070]
-   txt = ["LivingRoom"]
--   eth0 IPv4 BeagleBoneMusicBox                            _musicbox._tcp       local
-*/
+//Browses the network for a sufficent amount of time and returns services (Blocking)
 func BrowseServiceImmediate(serviceType string)(map[string]Service){
 	//Exec avahi-browse with given paramaters: use option -t to end when list of services complete
 	cmd := exec.Command("avahi-browse","-t","-r",serviceType)
@@ -126,7 +113,7 @@ func BrowseServiceImmediate(serviceType string)(map[string]Service){
 	return services
 }
 
-//Performs same function as BrowseServiceImmediate(), but monitors services and passes updated information until told to quit
+//Performs same function as BrowseServiceImmediate(), but monitors services and passes updated information until told to quit (Async)
 func BrowseService(serviceType string, quitChan <-chan interface{})(<-chan map[string]Service){
 	//Create update chan
 	updateChan := make(chan map[string]Service,1)
